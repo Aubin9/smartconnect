@@ -1,4 +1,4 @@
-name: SmartConnect CI
+name: SmartConnect CI/CD
 
 on:
   push:
@@ -34,6 +34,13 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm install
+      # 1. Dynamically generate the .env file for Prisma and NextAuth
+      - name: Create .env file
+        run: |
+          echo "DATABASE_URL=${{ env.DATABASE_URL }}" >> .env
+          echo "NEXTAUTH_URL=${{ env.NEXTAUTH_URL }}" >> .env
+          echo "NEXTAUTH_SECRET=${{ env.NEXTAUTH_SECRET }}" >> .env
+
       - run: npx prisma generate
       - run: npx prisma db push
       - run: npm run type-check
