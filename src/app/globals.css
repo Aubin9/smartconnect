@@ -1,0 +1,16 @@
+@import 'leaflet/dist/leaflet.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+.dark { color-scheme: dark; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #f8f9fa; color: #0f172a; font-family: Inter, Roboto, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.dark body { background: #0f172a; color: #e2e8f0; }
+.leaflet-container { width: 100%; height: 100%; min-height: 420px; border-radius: 1.5rem; }
+.mono { font-family: 'SFMono-Regular', Consolas, 'Roboto Mono', monospace; }
+.scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.35); border-radius: 999px; }
+@media print { .no-print { display: none !important; } }

@@ -1,0 +1,404 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String?
+  password     String?
+  emailVerified DateTime?
+  image        String?
+  role         Role          @default(SUBSCRIBER)
+  phoneNumber  String        @unique
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  subscriber   Subscriber?
+  operatorUser OperatorUser?
+  sessions     Session[]
+  accounts     Account[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  expires      DateTime
+  sessionToken String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Role {
+  SUBSCRIBER
+  OPERATOR
+  ADMIN
+}
+
+model Subscriber {
+  id                  String                @id @default(cuid())
+  userId              String                @unique
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  msisdn              String                @unique
+  plan                String
+  planSpeed           Int
+  accountAge          Int
+  trustScore          Float                 @default(0)
+  trustScoreUpdatedAt DateTime              @default(now())
+  topUpFrequency      Int                   @default(0)
+  topUpAmount         Float                 @default(0)
+  walletBalance       Float                 @default(0)
+  dataCreditBalance   Float                 @default(0)
+  airtimeBalance      Float                 @default(0)
+  active              Boolean               @default(true)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  networkQualityEvents NetworkQualityEvent[]
+  transactions        Transaction[]
+  alerts              Alert[]
+  trustScoreHistory   TrustScoreHistory[]
+  loans               Loan[]
+  insurancePolicies   InsurancePolicy[]
+  bridgeAdvances      AirtimeBridge[]
+  credits             Credit[]
+
+  @@index([msisdn])
+  @@index([trustScore])
+}
+
+model OperatorUser {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department String
+  roleTitle  String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model CellSector {
+  id                   String                 @id @default(cuid())
+  cellId               String                 @unique
+  location             String
+  region               String
+  operator             String
+  latitude             Float
+  longitude            Float
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+  kpiData              KpiData[]
+  predictions          CongestionPrediction[]
+  alerts               Alert[]
+  networkQualityEvents NetworkQualityEvent[]
+
+  @@index([region])
+  @@index([operator])
+}
+
+model KpiData {
+  id                     String     @id @default(cuid())
+  cellSectorId            String
+  cellSector              CellSector @relation(fields: [cellSectorId], references: [id], onDelete: Cascade)
+  rsrp                    Float?
+  sinr                    Float?
+  prbUtilization          Float?
+  cqi                     Int?
+  handoverFailureRate     Float?
+  throughput10th          Float?
+  throughput50th          Float?
+  throughput90th          Float?
+  prbChangeRate           Float?
+  throughputDropVelocity  Float?
+  timeOfDay               Int
+  dayOfWeek               Int
+  timestamp               DateTime   @default(now())
+  createdAt               DateTime   @default(now())
+
+  @@index([cellSectorId, timestamp])
+}
+
+model CongestionPrediction {
+  id             String      @id @default(cuid())
+  cellSectorId   String
+  cellSector     CellSector  @relation(fields: [cellSectorId], references: [id], onDelete: Cascade)
+  probability    Float
+  predictedAt    DateTime
+  windowMinutes  Int
+  actualOccurred Boolean?    @default(false)
+  createdAt      DateTime    @default(now())
+  feedback        MLFeedback?
+
+  @@index([cellSectorId, predictedAt])
+  @@index([probability])
+}
+
+model NetworkQualityEvent {
+  id             String           @id @default(cuid())
+  subscriberId   String
+  subscriber     Subscriber       @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  cellSectorId   String?
+  cellSector     CellSector?      @relation(fields: [cellSectorId], references: [id], onDelete: SetNull)
+  eventType      NetworkEventType
+  throughput     Float?
+  latency        Float?
+  qoeScore       Float?
+  timestamp      DateTime         @default(now())
+  createdAt      DateTime         @default(now())
+
+  @@index([subscriberId, timestamp])
+}
+
+enum NetworkEventType {
+  CONGESTION_WARNING
+  OUTAGE_DETECTED
+  QUALITY_DEGRADED
+  RECOVERY
+}
+
+model TrustScoreHistory {
+  id           String     @id @default(cuid())
+  subscriberId String
+  subscriber   Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  score        Float
+  reason       String?
+  createdAt    DateTime   @default(now())
+
+  @@index([subscriberId, createdAt])
+}
+
+model Transaction {
+  id                  String            @id @default(cuid())
+  subscriberId         String
+  subscriber           Subscriber        @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  type                 TransactionType
+  amount               Float
+  description          String
+  status               TransactionStatus @default(PENDING)
+  mobileMoneyRef       String?
+  mobileMoneyProvider  String?
+  creditId             String?
+  loanId               String?
+  insuranceId          String?
+  bridgeId             String?
+  timestamp            DateTime          @default(now())
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  @@index([subscriberId, timestamp])
+  @@index([type])
+  @@index([status])
+}
+
+enum TransactionType {
+  CREDIT
+  LOAN_DISBURSEMENT
+  LOAN_REPAYMENT
+  INSURANCE_PAYOUT
+  INSURANCE_PREMIUM
+  AIRTIME_BRIDGE
+  TOP_UP
+  REFUND
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REVERSED
+}
+
+model Credit {
+  id                    String     @id @default(cuid())
+  subscriberId           String
+  subscriber             Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  amount                 Float
+  type                   CreditType
+  reason                 String
+  used                   Boolean    @default(false)
+  degradationMinutes     Int?
+  congestionProbability  Float?
+  expiresAt              DateTime?
+  createdAt              DateTime   @default(now())
+
+  @@index([subscriberId, createdAt])
+}
+
+enum CreditType {
+  DATA
+  AIRTIME
+  INSURANCE_PAYOUT
+}
+
+model Loan {
+  id                   String     @id @default(cuid())
+  subscriberId          String
+  subscriber            Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  amount                Float
+  interestRate          Float      @default(3.5)
+  status                LoanStatus @default(PENDING)
+  trustScoreAtApproval  Float
+  termWeeks             Int        @default(4)
+  approvedAt            DateTime?
+  dueDate               DateTime?
+  repaidAt              DateTime?
+  createdAt             DateTime   @default(now())
+  updatedAt             DateTime   @updatedAt
+
+  @@index([subscriberId, status])
+}
+
+enum LoanStatus {
+  PENDING
+  APPROVED
+  REPAID
+  DEFAULTED
+  REJECTED
+}
+
+model InsurancePolicy {
+  id                String             @id @default(cuid())
+  subscriberId       String
+  subscriber         Subscriber         @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  active             Boolean            @default(true)
+  premiumAmount      Float              @default(50)
+  dailyPayoutCap     Float              @default(500)
+  dailyCoverageUsed  Float              @default(0)
+  lastPayoutAt       DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  payouts            InsurancePayout[]
+
+  @@index([subscriberId, active])
+}
+
+model InsurancePayout {
+  id          String          @id @default(cuid())
+  policyId    String
+  policy      InsurancePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  amount      Float
+  outageHours Float
+  reason      String
+  timestamp   DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+}
+
+model AirtimeBridge {
+  id           String       @id @default(cuid())
+  subscriberId String
+  subscriber   Subscriber   @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  amount       Float
+  serviceFee   Float        @default(5.5)
+  status       BridgeStatus @default(ACTIVE)
+  borrowedAt   DateTime     @default(now())
+  repaidAt     DateTime?
+  dueDate      DateTime
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([subscriberId, status])
+}
+
+enum BridgeStatus {
+  ACTIVE
+  REPAID
+  OVERDUE
+  WRITTEN_OFF
+}
+
+model Alert {
+  id            String        @id @default(cuid())
+  subscriberId  String
+  subscriber    Subscriber    @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  cellSectorId  String?
+  cellSector    CellSector?   @relation(fields: [cellSectorId], references: [id], onDelete: SetNull)
+  type          AlertType
+  title         String
+  message       String
+  severity      AlertSeverity @default(INFO)
+  sentVia       AlertChannel[]
+  read          Boolean       @default(false)
+  actionTaken   Boolean?      @default(false)
+  timestamp     DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+
+  @@index([subscriberId, timestamp])
+  @@index([severity])
+}
+
+enum AlertType {
+  CONGESTION_WARNING
+  CREDIT_ADDED
+  INSURANCE_PAYOUT
+  LOAN_APPROVED
+  BRIDGE_ACTIVATED
+  SERVICE_OUTAGE
+  PROMOTIONAL
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+enum AlertChannel {
+  PUSH
+  SMS
+  USSD
+  EMAIL
+}
+
+model MLModel {
+  id           String   @id @default(cuid())
+  name         String
+  version      String
+  type         String
+  accuracy     Float?
+  aucScore     Float?
+  precision    Float?
+  recall       Float?
+  trainingDate DateTime?
+  isActive     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([name, version])
+}
+
+model MLFeedback {
+  id             String               @id @default(cuid())
+  predictionId   String               @unique
+  prediction     CongestionPrediction @relation(fields: [predictionId], references: [id], onDelete: Cascade)
+  actualOccurred Boolean
+  timestamp      DateTime             @default(now())
+  createdAt      DateTime             @default(now())
+}

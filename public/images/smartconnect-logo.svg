@@ -1,0 +1,8 @@
+<svg width="280" height="72" viewBox="0 0 280 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="72" height="72" rx="20" fill="url(#g)"/>
+  <path d="M19 39c14-14 52-14 66 0" stroke="white" stroke-width="7" stroke-linecap="round" transform="scale(.72) translate(15 15)"/>
+  <circle cx="36" cy="51" r="5" fill="white"/>
+  <text x="88" y="30" font-family="Inter, Arial" font-size="24" font-weight="800" fill="#0f172a">SmartConnect</text>
+  <text x="88" y="52" font-family="Inter, Arial" font-size="13" font-weight="700" fill="#00B4D8">Intelligent Network. Smarter You.</text>
+  <defs><linearGradient id="g" x1="0" y1="0" x2="72" y2="72"><stop stop-color="#0066FF"/><stop offset="1" stop-color="#00B4D8"/></linearGradient></defs>
+</svg>
