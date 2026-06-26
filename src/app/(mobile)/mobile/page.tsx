@@ -1,16 +1,15 @@
 import Link from "next/link";
-import { getServerSession } from "next-auth";
+import { auth } from "@/lib/auth/config";
 import { ArrowRight, CheckCircle2, Radio, Shield, Wallet } from "lucide-react";
 import { SwipeableCard } from "@/components/mobile/SwipeableCard";
 import { TrustScoreGauge } from "@/components/shared/charts/TrustScoreGauge";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { authOptions } from "@/lib/auth/config";
 import { getCurrentOrDemoSubscriber } from "@/lib/services/current-user.service";
 import { formatDateTime, formatXaf } from "@/lib/utils/formatters";
 
 export default async function MobileHomePage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session) return null;
   const subscriber = await getCurrentOrDemoSubscriber(session);
   if (!subscriber) return <Card>No subscriber profile found.</Card>;

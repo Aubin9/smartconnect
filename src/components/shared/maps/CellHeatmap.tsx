@@ -2,16 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
-
-// 1. Define a strict type for individual network cell items
-export interface CellData {
-  id: string | number;
-  latitude: number;
-  longitude: number;
-  signalStrength?: number; // e.g., dBm or percentage metric
-  operator?: "Orange" | "MTN" | "Camtel" | "Nexttel" | string;
-  [key: string]: unknown; // Safe fallback catch-all for extra properties
-}
+import { CellData } from "./NetworkCoverageMap";
 
 const NetworkCoverageMap = dynamic(
   () => import("./NetworkCoverageMap").then((mod) => mod.NetworkCoverageMap),

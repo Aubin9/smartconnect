@@ -1,16 +1,15 @@
 import type { ReactNode } from "react";
-import { getServerSession } from "next-auth";
 import type { LucideIcon } from "lucide-react";
 import { Landmark, ShieldCheck, Plane, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { authOptions } from "@/lib/auth/config";
+import { auth } from "@/lib/auth/config";
 import { getCurrentOrDemoSubscriber } from "@/lib/services/current-user.service";
 import { formatDateTime, formatXaf } from "@/lib/utils/formatters";
 
 export default async function MobileWalletPage() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session) return null;
   const subscriber = await getCurrentOrDemoSubscriber(session);
   if (!subscriber) return <Card>No wallet found.</Card>;

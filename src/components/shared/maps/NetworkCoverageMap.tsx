@@ -4,14 +4,15 @@ import { CircleMarker, MapContainer, Popup, TileLayer } from "react-leaflet";
 import { Button } from "@/components/ui/button";
 import { percent } from "@/lib/utils/formatters";
 
-type Cell = {
-  id: string;
+export type CellData = {
+  id: string | number;
   cellId: string;
   location: string;
   region: string;
-  operator: string;
+  operator?: "Orange" | "MTN" | "Camtel" | "Nexttel" | string;
   latitude: number;
   longitude: number;
+  signalStrength?: number;
   latestKpi?: {
     rsrp: number | null;
     sinr: number | null;
@@ -19,6 +20,7 @@ type Cell = {
     throughput50th: number | null;
   } | null;
   latestPrediction?: { probability: number; windowMinutes: number } | null;
+  [key: string]: unknown;
 };
 
 function colorFor(probability: number) {
@@ -28,7 +30,7 @@ function colorFor(probability: number) {
   return "#2ecc71";
 }
 
-export function NetworkCoverageMap({ cells }: { cells: Cell[] }) {
+export function NetworkCoverageMap({ cells }: { cells: CellData[] }) {
   return (
     <div className="h-[520px] overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-card dark:border-slate-800 dark:bg-slate-900">
       <MapContainer
