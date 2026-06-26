@@ -4,10 +4,10 @@ import { Landmark, ShieldCheck, Plane, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { auth } from "@/lib/auth/config";
+import { auth } from "@/lib/auth/client";
 import { getCurrentOrDemoSubscriber } from "@/lib/services/current-user.service";
 import { formatDateTime, formatXaf } from "@/lib/utils/formatters";
-
+export const dynamic = "force-dynamic";
 export default async function MobileWalletPage() {
   const session = await auth();
   if (!session) return null;

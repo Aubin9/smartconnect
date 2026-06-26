@@ -1,11 +1,11 @@
-import { auth } from "@/lib/auth/config"; // Import auth instead
+import { auth } from "@/lib/auth/client";
 import { Bell, Check, CircleAlert, Megaphone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getCurrentOrDemoSubscriber } from "@/lib/services/current-user.service";
 import { formatRelative } from "@/lib/utils/formatters";
-
+export const dynamic = "force-dynamic";
 export default async function MobileAlertsPage() {
   const session = await auth();
   if (!session) return null;

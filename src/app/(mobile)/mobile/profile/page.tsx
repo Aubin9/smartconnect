@@ -4,10 +4,10 @@ import { TrustScoreGauge } from "@/components/shared/charts/TrustScoreGauge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { auth } from "@/lib/auth/config";
+import { auth } from "@/lib/auth/client";
 import { getCurrentOrDemoSubscriber } from "@/lib/services/current-user.service";
 import { formatXaf } from "@/lib/utils/formatters";
-
+export const dynamic = "force-dynamic";
 export default async function MobileProfilePage() {
   const session = await auth();
   if (!session) return null;

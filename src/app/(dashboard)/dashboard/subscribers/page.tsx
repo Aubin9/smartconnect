@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { subscriberService } from "@/lib/services/subscriber.service";
 import { formatXaf } from "@/lib/utils/formatters";
-
+export const dynamic = "force-dynamic";
 export default async function SubscribersPage() {
   const subscribers = await subscriberService.listSubscribers({ limit: 40 });
   const first = subscribers[0];

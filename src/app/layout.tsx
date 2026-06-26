@@ -16,7 +16,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   themeColor: "#0066FF",
 };
-
+export const dynamic = "force-dynamic";
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>

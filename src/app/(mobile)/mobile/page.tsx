@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth } from "@/lib/auth/config";
+import { auth } from "@/lib/auth/client";
 import { ArrowRight, CheckCircle2, Radio, Shield, Wallet } from "lucide-react";
 import { SwipeableCard } from "@/components/mobile/SwipeableCard";
 import { TrustScoreGauge } from "@/components/shared/charts/TrustScoreGauge";
@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getCurrentOrDemoSubscriber } from "@/lib/services/current-user.service";
 import { formatDateTime, formatXaf } from "@/lib/utils/formatters";
-
+export const dynamic = "force-dynamic";
 export default async function MobileHomePage() {
   const session = await auth();
   if (!session) return null;

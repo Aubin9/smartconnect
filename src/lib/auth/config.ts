@@ -1,8 +1,7 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
-import NextAuth from "next-auth/next";
-import type { NextAuthOptions, User, Session } from "next-auth";
-import type { JWT } from "next-auth/jwt";
+import NextAuth from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/db/prisma";
 
@@ -36,24 +35,33 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user: User }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role; // Now valid
-        token.phoneNumber = user.phoneNumber; // Now valid
+        token.role = user.role;
+        token.phoneNumber = user.phoneNumber;
       }
       return token;
     },
-    async session({ session, token }: { session: Session; token: JWT }) {
+    async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        session.user.role = token.role as string; // Now valid
-        session.user.phoneNumber = token.phoneNumber as string; // Now valid
+        session.user.role = token.role as string;
+        session.user.phoneNumber = token.phoneNumber as string;
       }
       return session;
     },
   },
 };
 
-const { handlers, auth, signIn, signOut } = NextAuth(authOptions);
-export { handlers, auth, signIn, signOut };
+// Create the NextAuth instance
+const authHandler = NextAuth(authOptions);
+
+// Export the handler for the API route
+export default authHandler;
+
+// Export individual methods
+export const { auth, signIn, signOut } = authHandler;
+
+// IMPORTANT: Export handlers separately for the API route
+export const handlers = authHandler.handlers;

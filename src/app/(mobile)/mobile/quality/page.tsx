@@ -3,11 +3,11 @@ import { CellHeatmap } from "@/components/shared/maps/CellHeatmap";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { auth } from "@/lib/auth/config";
+import { auth } from "@/lib/auth/client";
 import { getCurrentOrDemoSubscriber } from "@/lib/services/current-user.service";
 import { prisma } from "@/lib/db/prisma";
 import { CellData } from "@/components/shared/maps/NetworkCoverageMap";
-
+export const dynamic = "force-dynamic";
 export default async function MobileQualityPage() {
   const session = await auth();
   if (!session) return null;
