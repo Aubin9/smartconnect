@@ -1,6 +1,6 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
-import NextAuth from "next-auth";
+import NextAuth, { getServerSession } from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/db/prisma";
@@ -54,14 +54,8 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-// Create the NextAuth instance
-const authHandler = NextAuth(authOptions);
+// 2. Default export for the Next.js API catch-all route (App Router api/auth/[...nextauth]/route.ts)
+export default NextAuth(authOptions);
 
-// Export the handler for the API route
-export default authHandler;
-
-// Export individual methods
-export const { auth, signIn, signOut } = authHandler;
-
-// IMPORTANT: Export handlers separately for the API route
-export const handlers = authHandler.handlers;
+// 3. Helper to easily fetch the server session across your app
+export const auth = () => getServerSession(authOptions);
