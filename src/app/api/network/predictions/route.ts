@@ -1,1 +1,2 @@
-export { GET, POST } from '../prediction/route';
+export const dynamic = "force-dynamic";
+export { GET, POST } from "../prediction/route";
